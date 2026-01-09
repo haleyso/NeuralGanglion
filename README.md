@@ -2,7 +2,7 @@
 
 [Haley So](https://haleyso.github.io) and [Gordon Wetzstein](https://www.computationalimaging.org)\
 [[Paper](https://haleyso.github.io/research/neural_ganglion_sensors_arxiv.pdf)]\
-![Eye vs Neural Ganglion Sensors](figures/white_background.png)\
+![Eye vs Neural Ganglion Sensors](figures/white_background.png)
 
 
 Abstract:
