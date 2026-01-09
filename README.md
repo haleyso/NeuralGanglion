@@ -2,8 +2,8 @@
 
 [Haley So](https://haleyso.github.io) and [Gordon Wetzstein](https://www.computationalimaging.org)\
 [[Paper](https://haleyso.github.io/research/neural_ganglion_sensors_arxiv.pdf)]
-<!-- ![Eye vs Neural Ganglion Sensors](figures/eye.png) -->
-<img src="figures/eye.png" style="background:white">
+![Eye vs Neural Ganglion Sensors](figures/white_background.png)
+
 
 Abstract:
 >Inspired by the data-efficient spiking mechanism of neurons in the human eye, event cameras were created to achieve high temporal resolution with minimal power and bandwidth requirements by emitting asynchronous, per-pixel intensity changes rather than conventional fixed-frame rate images. Unlike retinal ganglion cells (RGCs) in the human eye, however, which integrate signals from multiple photoreceptors within a receptive field to extract spatio-temporal features, conventional event cameras do not leverage local spatial context when deciding which events to fire. Moreover, the eye contains around 20 different kinds of RGCs operating in parallel, each attuned to different features or conditions. Inspired by this biological design, we introduce Neural Ganglion Sensors, an extension of traditional event cameras that learns task-specific spatio-temporal retinal kernels (i.e., RGC "events"). We evaluate our design on two challenging tasks: video interpolation and optical flow. Our results demonstrate that our biologically inspired sensing improves performance relative to conventional event cameras while reducing overall event bandwidth. These findings highlight the promise of RGC-inspired event sensors for edge devices and other low-power, real-time applications requiring efficient, high-resolution visual streams.
