@@ -1,0 +1,182 @@
+# general settings
+name: r7lii_5e8_nosv_eval
+model_type: DiffV2E_TwoSharpImages
+scale: 1
+num_gpu: 1 
+manual_seed: 10
+
+
+datasets:
+  train:
+    name: gopro-twoblur-train
+    type: GoProSharpEventRecurrentDatasetESIM_imagesonly
+    # dataroot: /home/data/haleyso/GoPRO/
+    # dataroot: /home/haleyso/data/GoPRO/
+    dataroot: /miele/haleyso/apollo_home/data/GoPRO/
+    debug: false
+    linear: true
+  
+
+    # interpolation settings
+    num_end_interpolation: 1 # m
+    num_inter_interpolation: 7 # n
+    # voxel settings
+    norm_voxel: false
+    one_voxel_flag: true
+    # the one_voxel_flag has to be true if want to set 'return_deblur_voxel' to true
+    return_deblur_voxel: false
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    # augment
+    gt_size: 256
+    use_hflip: true
+    use_rot: true
+    random_reverse: false
+    # data loader settings
+    use_shuffle: true
+    num_worker_per_gpu: 2
+    batch_size_per_gpu: 2 # 4 for 2080, 8 for titan
+    dataset_enlarge_ratio: 1  # accelarate, equals to the num_gpu
+    prefetch_mode: cpu  # ?
+    num_prefetch_queue: 2
+
+  val:
+    name: gopro-twoblur-test
+    type: GoProSharpEventRecurrentDatasetESIM_imagesonly
+    # dataroot: /home/data/haleyso/GoPRO/
+    # dataroot: /home/haleyso/data/GoPRO/
+    dataroot: /miele/haleyso/apollo_home/data/GoPRO/
+    debug: false
+    linear: true
+
+    # interpolation settings
+    num_end_interpolation: 1 # m
+    num_inter_interpolation: 7 # n
+    # voxel settings
+    norm_voxel: false
+    one_voxel_flag: true
+    # the one_voxel_flag has to be true if want to set 'return_deblur_voxel' to true
+    return_deblur_voxel: false
+
+    io_backend:
+      type: disk
+
+    gt_size: ~
+    use_hflip: false
+    use_rot: false
+    batch_size_per_gpu: 2 
+
+dataset_name: GoPro
+
+# network structures
+network_g:
+  type: FinalBidirectionAttenfusion # UNetPSDecoderRecurrent #UNetDecoderRecurrent
+  img_chn: 6 # 6 for two image, 26 for image and voxel
+  ev_chn: 2
+  num_encoders: 3
+  base_num_channels: 32
+  # recurrent_block_type: 'simpleconvThendown' # 'convlstm' or 'convgru' or 'simpleconv' or 'simpleconvThendown'
+  num_block: 1  # num_block of resblock in the bottleneck of unet
+  num_residual_blocks: 2
+  # use_first_dcn: false
+
+e_simulator:
+  type: GeneralEventEmulator
+  event_mode: lrgc
+  output_mode: voxel_grid
+  neg_thres: 0.2
+  pos_thres: 0.2
+  # ps: ~
+  # pl: ~
+  refractory_period_s: 0.001
+  kernel_size: 5
+  output_channels: 1
+  bias: false
+  padding_mode: replicate
+  mixed_threshold: false
+  enable_threshold_learning: true
+  mixed_kernels: false
+  enable_kernel_learning: true
+  output_precision: polarity
+  output_bandwidth: 1.0
+  sigma_thres: 0.03
+  normalize_voxel: false
+  num_bins: 9
+  new_mem_update: true
+  log_temporal: false
+
+# path
+path:
+  pretrain_network_g: "/home/haleyso/REFID/experiments/r7lii_5e8_nosv/models/net_g_200000.pth" #'/home/haleyso/REFID/experiments/1T_7skip_DVS_noise_refrac1ms/models/net_g_200000.pth' #~
+  strict_load_g: true
+  resume_state: ~ 
+  training_states: ~ # save current trainig model states, for resume
+  pretrain_network_sim: "/home/haleyso/REFID/experiments/r7lii_5e8_nosv/models/v2e_model_200000.pth"
+  strict_load_sim: true
+
+# training settings
+train:
+  optim:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: !!float 1e-4
+    betas: [0.9, 0.99]
+
+  optim_v2e:
+    lr: !!float 5e-5
+    weight_decay: !!float 0
+    
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 200000 
+    eta_min: !!float 1e-7
+
+  total_iter: 200000
+  warmup_iter: -1 # no warm up
+
+  # losses
+  pixel_opt:
+    type: CharbonnierLoss
+    loss_weight: 1
+    reduction: mean
+
+  sparsity_opt:
+    type: L1Loss
+    loss_weight: !!float 5e-8
+    reduction: mean
+
+# validation settings
+val:
+  val_freq: !!float 1e4 # 2e4
+  save_img: true  
+  grids: ~  
+  crop_size: ~
+  max_minibatch: 8
+
+  metrics_interpo:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false 
+
+# logging settings
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 25000
+  use_tb_logger: true
+  # wandb:
+  #   project: your_project_name
+  #   resume_id: x
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
+

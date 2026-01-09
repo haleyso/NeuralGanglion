@@ -1,0 +1,14 @@
+*_private.md
+**/__pycache__/
+**/__pycache__/
+/.eggs/
+/basicsr.egg-info/
+/build/
+/experiments/
+/tb_logger/
+*.pyc
+basicsr/metrics/__pycache__/
+basicsr/utils/__pycache__/
+basicsr/models/losses/__pycache__/
+results/
+eval/
